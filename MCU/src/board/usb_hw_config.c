@@ -67,18 +67,12 @@ void Set_USBClock(void)
  \param Size of data block
  \param data block
 */
-bool USB_SendToHost(uint8_t opcode, uint8_t *data, uint16_t size)
+bool USB_SendToHost(uint8_t *data, uint16_t size)
 {
     uint32_t timeout = 1500000;
     
-    txBuffer[0] = eRepId_4; // Report ID
-    txBuffer[1] = opcode;   // Command code
-    txBuffer[2] = size;  // Size of PDU
-    
-    if (data != NULL && (size > 0)) {
-        memcpy((txBuffer + 3), data, size);  // PDU
-    }
-    
+    memcpy(txBuffer, data, size);  // PDU
+	
     if (GetDeviceState() == CONFIGURED)
     {
         while (!isPrevXferDone) // Wait for the previous transaction to complete

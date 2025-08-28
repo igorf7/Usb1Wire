@@ -36,7 +36,7 @@ static void IntToUnicode(uint32_t value , uint8_t *pbuf , uint8_t len);
 void USB_Interrupts_Config(void);
 void Set_USBClock(void);
 void Set_System(void);
-bool USB_SendToHost(uint8_t opcode, uint8_t *data, uint16_t size);
+bool USB_SendToHost(uint8_t *data, uint16_t size);
 void GPIO_AINConfig(void);
 void Enter_LowPowerMode(void);
 void Leave_LowPowerMode(void);

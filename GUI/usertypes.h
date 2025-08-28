@@ -37,8 +37,7 @@ typedef enum
 /* Opcodes */
 typedef enum
 {
-    eOwEnumerate = (quint8)1,
-    eOwEnumerateDone,
+    eOwSearchRom = (quint8)1,
     eOwBusReset,
     eOwBusWrite,
     eOwBusRead,

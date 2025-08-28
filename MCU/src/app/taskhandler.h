@@ -21,12 +21,11 @@
 /* Device Opcodes */
 typedef enum
 {
-    eOwEnumerate = (uint8_t)1,
-    eOwEnumerateDone,
+    eOwSearchRom = (uint8_t)1,
     eOwBusReset,
     eOwBusWrite,
     eOwBusRead,
-    eUsbHeartbeat
+	eUsbHeartbeat
 } AppLayerOpcode_t;
 
 /* Application Layer Packet Structure */
@@ -35,11 +34,11 @@ typedef struct
     uint8_t rep_id;     // report id
     uint8_t opcode;     // comand code
     uint8_t data_size;  // data field size
-    uint8_t data[60];   // data field
+    uint8_t data[];		// data field address
 } AppLayerPacket_t;
 
 /* API */
-void TaskEnumerate(void *prm);
+void TaskSearchRom(void *prm);
 void TaskBusReset(void *prm);
 void TaskBusWrite(void *prm);
 void TaskBusRead(void *prm);

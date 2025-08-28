@@ -5,27 +5,40 @@
 */
 #include "taskhandler.h"
 
-static uint8_t usbTxBuffer[wMaxPacketSize];
+static uint8_t txBuffer[64];
+static AppLayerPacket_t *response = (AppLayerPacket_t*)txBuffer;
 
 /*!
- \brief Search and enumerate devices on a 1-Wire bus
+ \brief Sends an app-layer packet to the host
+ \param Command code
+ \param PDU size
+*/
+static void SendToHost(uint8_t opcode, uint16_t size)
+{
+	response->rep_id = eRepId_4;
+	size += sizeof(response->rep_id);
+	response->opcode = opcode;
+	size += sizeof(response->opcode);
+    response->data_size = size;
+	size += sizeof(response->data_size);
+	
+	USB_SendToHost(txBuffer, size);
+}
+
+/*!
+ \brief Search ROM on a 1-Wire bus
  \param optional parameter
 */
-void TaskEnumerate(void *prm)
+void TaskSearchRom(void *prm)
 {
-	bool result = false;
-	uint8_t address[OW_ROM_SIZE];
-		
-	do {
-		result = OW_SearchRom(address);
-		if (result) {
-			USB_SendToHost(eOwEnumerate, address, sizeof(address));
-		}
-	}
-	while (result);
+	bool result = OW_SearchRom(response->data);
 	
-	OW_ClearSearchResult();
-	USB_SendToHost(eOwEnumerateDone, NULL, 0);
+	if (!result) {
+		memset(response->data, 0, OW_ROM_SIZE);
+		OW_ClearSearchResult();
+	}
+	
+	SendToHost(eOwSearchRom, OW_ROM_SIZE);
 }
 
 /*!
@@ -34,8 +47,8 @@ void TaskEnumerate(void *prm)
 */
 void TaskBusReset(void *prm)
 {
-	uint8_t result = OW_Reset();
-	USB_SendToHost(eOwBusReset, (uint8_t*)&result, sizeof(result));
+	response->data[0] = OW_Reset();
+	SendToHost(eOwBusReset, 1);
 }
 
 /*!
@@ -44,12 +57,12 @@ void TaskBusReset(void *prm)
 */
 void TaskBusWrite(void *prm)
 {
-	AppLayerPacket_t *packet = (AppLayerPacket_t*)prm;
+	AppLayerPacket_t *writedata = (AppLayerPacket_t*)prm;
 	
-	for (int i = 0; i < packet->data_size; i++) {
-		OW_WriteByte(packet->data[i]);
+	for (int i = 0; i < writedata->data_size; i++) {
+		OW_WriteByte(writedata->data[i]);
 	}
-	USB_SendToHost(eOwBusWrite, NULL, 0);
+	SendToHost(eOwBusWrite, 0);
 }
 
 /*!
@@ -61,7 +74,7 @@ void TaskBusRead(void *prm)
 	uint16_t size = *((uint16_t*)prm);
 	
 	for (uint16_t i = 0; i < size; i++) {
-		usbTxBuffer[i] = OW_ReadByte();
+		response->data[i] = OW_ReadByte();
 	}
-	USB_SendToHost(eOwBusRead, usbTxBuffer, size);
+	SendToHost(eOwBusRead, size);
 }

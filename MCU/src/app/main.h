@@ -25,10 +25,8 @@ __STATIC_INLINE void InitWatchdog(void)
     IWDG->KR = KR_KEY_Enable;
 }
 
-/* Private functions prototypes */
-static void BackgroundTask(void);
-
 /* Callbacks */
+void BackgroundTask(void);
 void USB_HandleRxData(void);
 void SysTick_Callback(void);
 #endif  // __MAIN_H

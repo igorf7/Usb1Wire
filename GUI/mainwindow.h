@@ -41,6 +41,7 @@ private slots:
     void onSearchButtonClicked();
     void onStartButtonClicked();
     void onDeviceComboBoxChanged(int index);
+    void onClearButtonClicked();
 
 private:
     Ui::MainWindow *ui;
@@ -52,19 +53,22 @@ private:
     QList<quint64> owDeviceAddressList;
     QHash<quint64, int> selDevices;
 
-    int owMeasureTime = 850; // ms
+    int owMeasureTime = 750; // ms
     int owTotalDeviceCount = 0;
     int owSelDeviceCount = 0;
     int owDevIndex = 0;
 
+    quint32 rxCounter = 0;
+
     bool isConnected = false;
     bool isUsbPollRunning = false;
     bool isOwSearchDone = false;
+    bool isMeasureRunning = false;
 
     quint8 rxUsbBuffer[USB_BUFF_SIZE];
     quint8 txUsbBuffer[USB_BUFF_SIZE];
 
-    void owStartMeasure(quint8 measure_cmd);
+    void startMeasure();
     void owDataRead(quint16 read_data_len);
     void usbSend(TOpcode opcode, const QByteArray &tx_data);
     void handleReceivedPacket();

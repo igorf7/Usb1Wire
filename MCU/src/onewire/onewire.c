@@ -13,15 +13,15 @@ static uint8_t SearchRom[8];
  \brief Reads a bit from the 1-Wire bus
  \retval bit state
  */
-static uint8_t OW_ReadBit(void) // OW_ReadBit() is used without pauses between each other
+static uint8_t OW_ReadBit(void)
 {
 	uint8_t r_bit = 0;
 	GPIOB->ODR &= ~GPIO_ODR_ODR11;
-	WaitMicrosec( 6 ); // was 2, standard = 6
+	WaitMicrosec(6);
 	GPIOB->ODR |= GPIO_ODR_ODR11;
-	WaitMicrosec( 6 ); // was 13, standard = 9, 8 - not run, 6 - run
+	WaitMicrosec(6);
 	r_bit = (GPIOB->IDR & GPIO_IDR_IDR11 ? 1 : 0);
-	WaitMicrosec( 58 ); // was 45, standard = 55, 6 + 9 + 45 = 70
+	WaitMicrosec(58);
 	
 	return r_bit;
 }
@@ -33,9 +33,9 @@ static uint8_t OW_ReadBit(void) // OW_ReadBit() is used without pauses between e
 static void OW_WriteBit(uint8_t w_bit)
 {
 	GPIOB->ODR &= ~GPIO_ODR_ODR11;
-	WaitMicrosec(w_bit ? 6 : 64); // was 3 : 65, standard = 6 : 64
+	WaitMicrosec(w_bit ? 6 : 64);
 	GPIOB->ODR |= GPIO_ODR_ODR11;
-	WaitMicrosec(w_bit ? 60 : 10); // was 65 : 3, standard = 60 : 10
+	WaitMicrosec(w_bit ? 60 : 10);
 }
 
 /*!
@@ -71,10 +71,10 @@ uint8_t OW_ReadByte(void)
  \brief Writes a byte of data to the 1-Wire bus
  \param byte to Wrire
  */
-void OW_WriteByte(uint8_t dt)
+void OW_WriteByte(uint8_t data)
 {
 	for (uint8_t i = 0; i < 8; i++) {
-		OW_WriteBit(dt >> i & 1);
+		OW_WriteBit(data >> i & 1);
 	}
 }
 
@@ -86,11 +86,11 @@ uint8_t OW_Reset(void)
 {
 	uint16_t status;
 	GPIOB->ODR &= ~GPIO_ODR_ODR11;
-	WaitMicrosec(480); // was 485
+	WaitMicrosec(480);
 	GPIOB->ODR |= GPIO_ODR_ODR11;
-	WaitMicrosec(70); // was 65
+	WaitMicrosec(70);
 	status = GPIOB->IDR & GPIO_IDR_IDR11;
-	WaitMicrosec(500); // standart = 410
+	WaitMicrosec(500);
 	
 	return (status ? 1 : 0);
 }

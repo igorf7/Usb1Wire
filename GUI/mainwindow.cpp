@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent)
             this, SLOT(onDeviceComboBoxChanged(int)));
     connect(ui->startMeasureButton, SIGNAL(clicked()),
             this, SLOT(onStartButtonClicked()));
+    connect(ui->clearPushButton, SIGNAL(clicked()),
+            this, SLOT(onClearButtonClicked()));
 
     /* Activate status bar */
     QFont font;
@@ -142,10 +144,13 @@ void MainWindow::onUsbDisconnected()
 {
     ui->connectPushButton->setIcon(QIcon(":/images/sw_off.png"));
     isConnected = false;
+    isUsbPollRunning = false;
+    isMeasureRunning = false;
     statusBar()->showMessage(tr("USB device disconnected"));
     selDevices.clear();
     owDeviceAddressList.clear();
     ui->deviceComboBox->clear();
+    ui->startMeasureButton->setEnabled(false);
 }
 
 /**
@@ -177,12 +182,9 @@ void MainWindow::timerEvent(QTimerEvent *event)
 void MainWindow::onStartButtonClicked()
 {
     if (!isConnected) return;
-
-    quint8 command = (ui->cmdComboBox->currentIndex() == 0) \
-                        ? OW_CONVERT_CMD : OW_RUN_SENSOR_CMD;
-
-    this->owStartMeasure(command);
-    owMeasureTimeEvent = startTimer(owMeasureTime);
+    if (isMeasureRunning) return;
+    this->startMeasure();
+    isMeasureRunning = true;
 }
 
 /**
@@ -225,7 +227,7 @@ void MainWindow::onSearchButtonClicked()
 
     isOwSearchDone = false;
     owDeviceAddressList.clear();
-    this->usbSend(eOwEnumerate, nullptr);
+    this->usbSend(eOwSearchRom, nullptr);
 }
 
 /**
@@ -249,6 +251,14 @@ void MainWindow::initDeviceComboBox()
     }
 }
 
+/**
+ * @brief MainWindow::onClearButtonClicked
+ */
+void MainWindow::onClearButtonClicked()
+{
+    rxCounter = 0;
+    ui->textEdit->clear();
+}
 
 /**
  * @brief onDeviceComboBoxChanged
@@ -261,6 +271,7 @@ void MainWindow::onDeviceComboBoxChanged(int index)
     if (!isConnected) return;
 
     selDevices.clear();
+    owDevIndex = 0;
 
     quint8 dev_family = OneWire::getFamily(ui->deviceComboBox->currentText());
 
@@ -294,9 +305,9 @@ void MainWindow::onDeviceComboBoxChanged(int index)
 }
 
 /**
- * @brief MainWindow::owStartMeasure
+ * @brief MainWindow::startMeasure
  */
-void MainWindow::owStartMeasure(quint8 measure_cmd)
+void MainWindow::startMeasure()
 {
     QByteArray tx_data;
     quint8 rom_cmd = (owSelDeviceCount > 1) ? OW_SKIPROM_CMD : OW_MATCHROM_CMD;
@@ -314,8 +325,9 @@ void MainWindow::owStartMeasure(quint8 measure_cmd)
         tx_data.clear();
     }
     // Send CONVERT cmd
-    tx_data.append(measure_cmd);
+    tx_data.append(OW_CONVERT_CMD);
     this->usbSend(eOwBusWrite, tx_data);
+    owMeasureTimeEvent = startTimer(owMeasureTime);
 }
 
 /**
@@ -365,27 +377,32 @@ void MainWindow::handleReceivedPacket()
         case eOwBusReset:
             break;
 
-        case eOwEnumerate:
+        case eOwSearchRom:
             dev_addr = *((quint64*)rx_packet->data);
-            owDeviceAddressList.append(dev_addr);
-            break;
+            if (dev_addr != 0) {
+                owDeviceAddressList.append(dev_addr);
+                this->usbSend(eOwSearchRom, nullptr);
+            }
+            else {
+                isOwSearchDone = true;
+                this->initDeviceComboBox();
+                dev_cnt = owDeviceAddressList.size();
+                if (dev_cnt > 0)
+                    ui->startMeasureButton->setEnabled(true);
+                else
+                    ui->startMeasureButton->setEnabled(false);
 
-        case eOwEnumerateDone:
-            isOwSearchDone = true;
-            this->initDeviceComboBox();
-            dev_cnt = owDeviceAddressList.size();
-            if (dev_cnt > 0)
-                ui->startMeasureButton->setEnabled(true);
-            else
-                ui->startMeasureButton->setEnabled(false);
-
-            statusBar()->showMessage(tr("Total 1-Wire devices found: ") +
-                                        QString::number(dev_cnt));
+                statusBar()->showMessage(tr("Total 1-Wire devices found: ") +
+                                         QString::number(dev_cnt));
+            }
             break;
 
         case eOwBusRead:
             dev_family = OneWire::getFamily(ui->deviceComboBox->currentText());
-            ui->textEdit->append("Device: " + QString::number(owDevIndex + 1));
+            ui->textEdit->append("Packet " + QString::number(++rxCounter));
+            ui->textEdit->append("Device " + QString::number(owDevIndex + 1));
+            ui->textEdit->append("Address: " +
+                                 QString::number(selDevices.key(owDevIndex), 16).toUpper());
 
             if ((dev_family == 0x28) || (dev_family == 0x55) || (dev_family == 0x58)) {
                 if (rx_packet->data[8] != OneWire::calcCrc8(rx_packet->data, 8)) {
@@ -400,11 +417,10 @@ void MainWindow::handleReceivedPacket()
                     sign = utemper & DS18B20_SIGN_MASK;
                     if (sign != 0) utemper = (0xFFFF - utemper + 1);
                     ftemper = (float)utemper * 0.0625f;
-
-                    ui->textEdit->append("t, °C: " + QString::number(ftemper, 'f', 1));
-                    ui->textEdit->append("alm_h: " + QString::number((qint8)rx_packet->data[2]));
-                    ui->textEdit->append("alm_l: " + QString::number((qint8)rx_packet->data[3]));
-                    ui->textEdit->append("res: " + QString::number((qint8)rx_packet->data[4]));
+                    ui->textEdit->append("Temperature: " + QString::number(ftemper, 'f', 1) + " °C");
+                    ui->textEdit->append("Alarm High: " + QString::number((qint8)rx_packet->data[2]));
+                    ui->textEdit->append("Alarm Low: " + QString::number((qint8)rx_packet->data[3]));
+                    ui->textEdit->append("Resolution code: " + QString::number((qint8)rx_packet->data[4]));
                     break;
                 case 0x55: // DD84
                 case 0x58:
@@ -412,7 +428,6 @@ void MainWindow::handleReceivedPacket()
                     adc2 = ((rx_packet->data[3] << 8) & 0xFF00) | (rx_packet->data[2] & 0x00FF);
                     dac1 = ((rx_packet->data[5] << 8) & 0xFF00) | (rx_packet->data[4] & 0x00FF);
                     dac2 = ((rx_packet->data[7] << 8) & 0xFF00) | (rx_packet->data[6] & 0x00FF);
-
                     ui->textEdit->append("ADC 1: " + QString::number(adc1));
                     ui->textEdit->append("ADC 2: " + QString::number(adc2));
                     ui->textEdit->append("DAC 1: " + QString::number(dac1));
@@ -430,7 +445,7 @@ void MainWindow::handleReceivedPacket()
             else
                 owDevIndex = 0;
 
-            this->onStartButtonClicked(); //
+            this->startMeasure();
             break;
 
         case eOwBusWrite:

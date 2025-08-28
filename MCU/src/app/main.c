@@ -10,9 +10,14 @@
 
 static HidProp_t hidProp;
 static HidEndp_t hidEndp;
-static uint32_t usbHeartbeat = 0x01020304;
 static bool isHeartbeatSend = false;
 static uint8_t usbRxBuffer[wMaxPacketSize];
+static AppLayerPacket_t heartbeat = {
+	eRepId_4,
+	eUsbHeartbeat,
+	5,
+	{1, 2, 3, 4, 5}
+};
 
 /*!
  \brief Program entry point
@@ -62,7 +67,7 @@ int main(void)
 /*!
  \brief Background task
 */
-static void BackgroundTask(void)
+void BackgroundTask(void)
 {
     /* Reload watchdog */
     #ifndef DEBUG
@@ -72,7 +77,7 @@ static void BackgroundTask(void)
     /* Send USB Heartbeat */
     if (isHeartbeatSend) {
         isHeartbeatSend = false;
-        USB_SendToHost(eUsbHeartbeat, (uint8_t*)&usbHeartbeat, sizeof(usbHeartbeat));
+        USB_SendToHost((uint8_t*)&heartbeat, heartbeat.data_size);
     }
 }
 
@@ -86,8 +91,8 @@ void USB_HandleRxData(void)
 		/* Check app layer opcode */
         switch (usbRxBuffer[1])
         {
-            case eOwEnumerate:
-                PutTask(TaskEnumerate, NULL);
+            case eOwSearchRom:
+                PutTask(TaskSearchRom, NULL);
         		break;
 			case eOwBusReset:
 				PutTask(TaskBusReset, NULL);

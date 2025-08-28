@@ -20,7 +20,6 @@ HEADERS += \
     hidapi/hidapi.h \
     mainwindow.h \
     onewire.h \
-    owdevice.h \
     usertypes.h
 
 FORMS += \
@@ -30,5 +29,7 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DESTDIR = ../../Binary
 
 RESOURCES += res.qrc

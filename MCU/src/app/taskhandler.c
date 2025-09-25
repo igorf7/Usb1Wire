@@ -57,10 +57,10 @@ void TaskBusReset(void *prm)
 */
 void TaskBusWrite(void *prm)
 {
-	AppLayerPacket_t *writedata = (AppLayerPacket_t*)prm;
+	AppLayerPacket_t *tx_buff = (AppLayerPacket_t*)prm;
 	
-	for (int i = 0; i < writedata->data_size; i++) {
-		OW_WriteByte(writedata->data[i]);
+	for (int i = 0; i < tx_buff->data_size; i++) {
+		OW_WriteByte(tx_buff->data[i]);
 	}
 	SendToHost(eOwBusWrite, 0);
 }
@@ -71,7 +71,8 @@ void TaskBusWrite(void *prm)
 */
 void TaskBusRead(void *prm)
 {
-	uint16_t size = *((uint16_t*)prm);
+	AppLayerPacket_t *rx_buff = (AppLayerPacket_t*)prm;
+	uint16_t size = *((uint16_t*)rx_buff->data);
 	
 	for (uint16_t i = 0; i < size; i++) {
 		response->data[i] = OW_ReadByte();

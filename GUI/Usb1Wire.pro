@@ -10,17 +10,31 @@ CONFIG += c++17
 
 SOURCES += \
     customhid.cpp \
-    hidapi/hid.c \
     main.cpp \
     mainwindow.cpp \
     onewire.cpp
 
 HEADERS += \
     customhid.h \
-    hidapi/hidapi.h \
+    hid/inc/hidapi.h \
     mainwindow.h \
     onewire.h \
     usertypes.h
+
+linux:!android {
+    SOURCES += hid/src/linux/hid.c
+    DESTDIR = ../../Binary/linux
+}
+
+macx {
+    SOURCES += hid/src/mac/hid.c
+    DESTDIR = ../../Binary/mac
+}
+
+win32 {
+    SOURCES += hid/src/windows/hid.c
+    DESTDIR = ../../Binary/windows
+}
 
 FORMS += \
     mainwindow.ui

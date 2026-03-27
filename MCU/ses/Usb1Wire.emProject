@@ -48,6 +48,11 @@
       Name="Debug"
       c_preprocessor_definitions="USE_STDPERIPH_DRIVER;DEBUG"
       c_user_include_directories=".;$(ProjectDir)/../src/app;$(ProjectDir)/../src/board;$(ProjectDir)/../src/onewire;$(ProjectDir)/../src/spl;$(ProjectDir)/../src/spl/inc;$(ProjectDir)/../src/usb_fs/inc;$(ProjectDir)/../CMSIS/Core/Include;$(ProjectDir)/../CMSIS/Device/Include" />
+    <configuration
+      Name="Release"
+      c_preprocessor_definitions="USE_STDPERIPH_DRIVER"
+      c_user_include_directories=".;$(ProjectDir)/../src/app;$(ProjectDir)/../src/board;$(ProjectDir)/../src/onewire;$(ProjectDir)/../src/spl;$(ProjectDir)/../src/spl/inc;$(ProjectDir)/../src/usb_fs/inc;$(ProjectDir)/../CMSIS/Core/Include;$(ProjectDir)/../CMSIS/Device/Include"
+      gcc_optimization_level="Level 1" />
     <folder Name="src">
       <folder Name="app">
         <file file_name="../src/app/main.c" />

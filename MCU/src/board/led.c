@@ -6,7 +6,8 @@
 #include "led.h"
 
 /*!
- */
+ \brief Initializes the LED port/pin
+*/
 void LED_Init(GPIO_TypeDef *led_port, uint16_t led_pin)
 {
     GPIO_InitTypeDef portStruct;
@@ -21,7 +22,11 @@ void LED_Init(GPIO_TypeDef *led_port, uint16_t led_pin)
 }
 
 /*!
- */
+ \brief Blinks the LED
+ \param [IN] LED port
+ \param [IN] LED pin
+ \param [IN] delay in ticks
+*/
 void LED_Blink(GPIO_TypeDef *led_port, uint16_t led_pin, volatile uint32_t ticks)
 {
     LED_ON(led_port, led_pin);

@@ -1,0 +1,46 @@
+<!DOCTYPE CrossStudio_Session_File>
+<session>
+ <Bookmarks/>
+ <Breakpoints groups="Breakpoints" active_group="Breakpoints">
+  <Exceptions/>
+ </Breakpoints>
+ <ExecutionProfileWindow/>
+ <FrameBuffer/>
+ <Memory1/>
+ <Memory2/>
+ <Memory3/>
+ <Memory4/>
+ <Project>
+  <ProjectSessionItem path="Usb1Wire"/>
+  <ProjectSessionItem path="Usb1Wire;Usb1Wire"/>
+  <ProjectSessionItem path="Usb1Wire;Usb1Wire;src"/>
+  <ProjectSessionItem path="Usb1Wire;Usb1Wire;src;app"/>
+  <ProjectSessionItem path="Usb1Wire;Usb1Wire;src;board"/>
+ </Project>
+ <Register1/>
+ <Register2/>
+ <Register3/>
+ <Register4/>
+ <Threads>
+  <ThreadsWindow showLists=""/>
+ </Threads>
+ <TraceWindow>
+  <Trace enabled="Yes"/>
+ </TraceWindow>
+ <Watch1>
+  <Watches active="1" update="Never"/>
+ </Watch1>
+ <Watch2>
+  <Watches active="0" update="Never"/>
+ </Watch2>
+ <Watch3>
+  <Watches active="0" update="Never"/>
+ </Watch3>
+ <Watch4>
+  <Watches active="0" update="Never"/>
+ </Watch4>
+ <Files>
+  <SessionOpenFile windowGroup="DockEditLeft" x="20" y="109" useTextEdit="1" path="../src/board/usb_pwr.c" left="0" selected="1" top="87" codecName="Default"/>
+ </Files>
+ <EMStudioWindow activeProject="Usb1Wire" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="/Users/igorfilippov/Work/Alcont/Bridge1Wire/Usb1Wire/MCU/src/usb_fs/src" debugSearchPath="" autoConnectCapabilities="3199"/>
+</session>

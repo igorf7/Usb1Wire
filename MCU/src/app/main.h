@@ -8,7 +8,6 @@
 
 #include "stm32f10x.h"
 #include "led.h"
-#include "usart.h"
 
 #define IWDG_WA_Enable      ((uint16_t)0x5555)
 #define IWDG_WA_Disable     ((uint16_t)0x0000)

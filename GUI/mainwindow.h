@@ -27,7 +27,7 @@ public:
 
 protected:
     int usbPollingEvent = 0;
-    int owMeasureTimeEvent = 0;
+    int owPollingEvent = 0;
     void timerEvent(QTimerEvent *event);
 
 public slots:
@@ -53,7 +53,7 @@ private:
     QList<quint64> owDeviceAddressList;
     QHash<quint64, int> selDevices;
 
-    int owMeasureTime = 750; // ms
+    int owPollingTime = 1000; // ms
     int owTotalDeviceCount = 0;
     int owSelDeviceCount = 0;
     int owDevIndex = 0;
@@ -63,12 +63,12 @@ private:
     bool isConnected = false;
     bool isUsbPollRunning = false;
     bool isOwSearchDone = false;
-    bool isMeasureRunning = false;
+    bool isPollingRunning = false;
 
     quint8 rxUsbBuffer[USB_BUFF_SIZE];
     quint8 txUsbBuffer[USB_BUFF_SIZE];
 
-    void startMeasure();
+    void startPolling();
     void owDataRead(quint16 read_data_len);
     void usbSend(TOpcode opcode, const QByteArray &tx_data);
     void handleReceivedPacket();

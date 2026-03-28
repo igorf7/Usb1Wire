@@ -164,17 +164,18 @@ void MainWindow::onStartButtonClicked()
     if (!isConnected) return;
 
     if (!isOwPollRunning) {
+        isOwPollRunning = true;
         this->startPolling();
         ui->startPollingButton->setText("Stop");
-        isOwPollRunning = true;
     }
     else {
+        isOwPollRunning = false;
         if (owPollingEvent != 0) {
             killTimer(owPollingEvent);
             owPollingEvent = 0;
         }
         ui->startPollingButton->setText("Start");
-        isOwPollRunning = false;
+
     }
 }
 
@@ -417,7 +418,8 @@ void MainWindow::handleReceivedPacket()
             else
                 owDevIndex = 0;
 
-            this->startPolling();
+            if (isOwPollRunning)
+                this->startPolling();
             break;
 
         case eOwBusWrite:

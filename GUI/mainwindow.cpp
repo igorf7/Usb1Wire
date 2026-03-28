@@ -241,7 +241,11 @@ void MainWindow::onDeviceComboBoxChanged(int index)
 void MainWindow::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == owPollingEvent) {
-        this->owDataRead(9);
+        if (owPollingEvent != 0) {
+            killTimer(owPollingEvent);
+            owPollingEvent = 0;
+            this->owDataRead(9);
+        }
     }
     else if (event->timerId() == usbPollingEvent) {
         int len = hidDevice->Read(rxUsbBuffer, USB_BUFF_SIZE);
@@ -412,6 +416,8 @@ void MainWindow::handleReceivedPacket()
                 owDevIndex++;
             else
                 owDevIndex = 0;
+
+            this->startPolling();
             break;
 
         case eOwBusWrite:

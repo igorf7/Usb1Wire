@@ -63,7 +63,7 @@ private:
     bool isConnected = false;
     bool isUsbPollRunning = false;
     bool isOwSearchDone = false;
-    bool isPollingRunning = false;
+    bool isOwPollRunning = false;
 
     quint8 rxUsbBuffer[USB_BUFF_SIZE];
     quint8 txUsbBuffer[USB_BUFF_SIZE];

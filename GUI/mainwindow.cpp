@@ -1,13 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QDialog>
-#include <QDir>
-#include <QFile>
-#include <QTextStream>
-#include <QDateTime>
-#include <QDebug>
-
-using namespace std;
 
 /**
  * @brief MainWindow Class Constructor
@@ -113,7 +105,6 @@ void MainWindow::onConnectButtonClicked()
         if (usbPollingEvent != 0) {
             killTimer(usbPollingEvent);
             usbPollingEvent = 0;
-            isUsbPollRunning = false;
         }
         if (owPollingEvent != 0) {
             killTimer(owPollingEvent);
@@ -129,7 +120,7 @@ void MainWindow::onUsbConnected()
 {
     isConnected = true;
     ui->connectPushButton->setIcon(QIcon(":/images/sw_on.png"));
-    statusBar()->showMessage(tr("USB device connected"));
+    statusBar()->showMessage(tr("USB Connected"));
 
     if (!isUsbPollRunning) {
         isUsbPollRunning = true;
@@ -145,8 +136,8 @@ void MainWindow::onUsbDisconnected()
     ui->connectPushButton->setIcon(QIcon(":/images/sw_off.png"));
     isConnected = false;
     isUsbPollRunning = false;
-    isPollingRunning = false;
-    statusBar()->showMessage(tr("USB device disconnected"));
+    isOwPollRunning = false;
+    statusBar()->showMessage(tr("USB Disconnected"));
     selDevices.clear();
     owDeviceAddressList.clear();
     ui->deviceComboBox->clear();
@@ -172,10 +163,10 @@ void MainWindow::onStartButtonClicked()
 {
     if (!isConnected) return;
 
-    if (!isPollingRunning) {
+    if (!isOwPollRunning) {
         this->startPolling();
         ui->startPollingButton->setText("Stop");
-        isPollingRunning = true;
+        isOwPollRunning = true;
     }
     else {
         if (owPollingEvent != 0) {
@@ -183,7 +174,7 @@ void MainWindow::onStartButtonClicked()
             owPollingEvent = 0;
         }
         ui->startPollingButton->setText("Start");
-        isPollingRunning = false;
+        isOwPollRunning = false;
     }
 }
 
@@ -250,8 +241,6 @@ void MainWindow::onDeviceComboBoxChanged(int index)
 void MainWindow::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == owPollingEvent) {
-        killTimer(owPollingEvent);
-        owPollingEvent = 0;
         this->owDataRead(9);
     }
     else if (event->timerId() == usbPollingEvent) {
@@ -422,8 +411,6 @@ void MainWindow::handleReceivedPacket()
                 owDevIndex++;
             else
                 owDevIndex = 0;
-
-            this->startPolling();
             break;
 
         case eOwBusWrite:

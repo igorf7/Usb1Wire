@@ -51,9 +51,9 @@ int main(void)
     StartSystickTimer(300);
 	
     /* Enable Watchdog */
-    #ifndef DEBUG
+#ifndef DEBUG
     InitWatchdog();
-    #endif
+#endif
 	
     __enable_irq();
     
@@ -70,9 +70,9 @@ int main(void)
 void BackgroundTask(void)
 {
     /* Reload watchdog */
-    #ifndef DEBUG
+#ifndef DEBUG
     WatchdogReload(KR_KEY_Reload);
-    #endif
+#endif
     
     /* Send USB Heartbeat */
     if (isHeartbeatSend) {

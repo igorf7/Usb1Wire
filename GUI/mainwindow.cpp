@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QMessageBox>
 
 /**
  * @brief MainWindow Class Constructor
@@ -31,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
             this, SLOT(onStartButtonClicked()));
     connect(ui->clearPushButton, SIGNAL(clicked()),
             this, SLOT(onClearButtonClicked()));
+    connect(ui->infoPushButton, SIGNAL(clicked()),
+            this, SLOT(onInfoButtonClicked()));
 
     /* Activate status bar */
     QFont font;
@@ -142,6 +145,7 @@ void MainWindow::onUsbDisconnected()
     owDeviceAddressList.clear();
     ui->deviceComboBox->clear();
     ui->startPollingButton->setEnabled(false);
+    ui->infoPushButton->setEnabled(false);
 }
 
 /**
@@ -186,6 +190,15 @@ void MainWindow::onClearButtonClicked()
 {
     rxCounter = 0;
     ui->textEdit->clear();
+}
+
+/**
+ * @brief MainWindow::onInfoButtonClicked
+ */
+void MainWindow::onInfoButtonClicked()
+{
+    quint8 family = OneWire::getFamily(ui->deviceComboBox->currentText());
+    QMessageBox::information(this, tr("Description"), OneWire::getDescription(family));
 }
 
 /**
@@ -373,13 +386,17 @@ void MainWindow::handleReceivedPacket()
                 isOwSearchDone = true;
                 this->initDeviceComboBox();
                 dev_cnt = owDeviceAddressList.size();
-                if (dev_cnt > 0)
+                if (dev_cnt > 0) {
                     ui->startPollingButton->setEnabled(true);
-                else
+                    ui->infoPushButton->setEnabled(true);
+                }
+                else {
                     ui->startPollingButton->setEnabled(false);
+                    ui->infoPushButton->setEnabled(false);
+                }
 
                 statusBar()->showMessage(tr("Total 1-Wire devices found: ") +
-                                         QString::number(dev_cnt));
+                                                    QString::number(dev_cnt));
             }
             break;
 

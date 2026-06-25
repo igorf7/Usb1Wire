@@ -60,7 +60,7 @@ private:
     };
 
     /* Device description */
-    static const inline QHash<quint8, QString> description =
+    static const inline QMap<quint8, QString> description =
     {
         {0x01, "64-bit unique serial number.\n"},
         {0x02, "2048 bits of nonvolatile read/write memory organized as three \nsecure keys of 384 bits each and a 512 bit scratch pad.\n"},

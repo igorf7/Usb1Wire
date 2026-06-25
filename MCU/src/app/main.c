@@ -13,10 +13,7 @@ static HidEndp_t hidEndp;
 static bool isHeartbeatSend = false;
 static uint8_t usbRxBuffer[wMaxPacketSize];
 static AppLayerPacket_t heartbeat = {
-	eRepId_4,
-	eUsbHeartbeat,
-	5,
-	{1, 2, 3, 4, 5}
+	eRepId_4, eUsbHeartbeat, 5, {1, 2, 3, 4, 5}
 };
 
 /*!

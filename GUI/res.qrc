@@ -3,5 +3,6 @@
         <file>images/search.png</file>
         <file>images/sw_off.png</file>
         <file>images/sw_on.png</file>
+        <file>images/Info.svg</file>
     </qresource>
 </RCC>
